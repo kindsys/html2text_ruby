@@ -7,7 +7,8 @@ class Html2Text
     @doc = doc
   end
 
-  def self.convert(html)
+  def self.convert(html, opts = {})
+    options = { remove_nbsp: true }.merge(opts)
     html = html.to_s
 
     if is_office_document?(html)
@@ -22,7 +23,8 @@ class Html2Text
       html = "<div>#{html}</div>"
     end
 
-    html = fix_newlines(replace_entities(html))
+    html = replace_entities(html, nbsp: (options[:remove_nbsp] == true))
+    html = fix_newlines(html)
     doc = Nokogiri::HTML(html)
 
     Html2Text.new(doc).convert
@@ -32,8 +34,10 @@ class Html2Text
     text.gsub("\r\n", "\n").gsub("\r", "\n")
   end
 
-  def self.replace_entities(text)
-    text.gsub("&nbsp;", " ").gsub("\u00a0", " ").gsub("&zwnj;", "")
+  def self.replace_entities(text, nbsp: true, zwnj: true)
+    text = text.gsub("&nbsp;", " ").gsub("\u00a0", " ") if nbsp
+    text = text.gsub("&zwnj;", "") if zwnj
+    text
   end
 
   def convert

@@ -42,6 +42,18 @@ describe Html2Text do
     end
   end
 
+  describe "#convert (do not remove non-breaking spaces)" do
+    let(:text) { Html2Text.convert(html, { remove_nbsp: false }) }
+
+    context "an empty line" do
+      let(:html) { "hello &nbsp; world &amp; people &lt; &gt; &NBSP;" }
+
+      it "is an empty line" do
+        expect(text).to eq("hello \u00a0 world & people < > &NBSP;")
+      end
+    end
+  end
+
   describe "#remove_leading_and_trailing_whitespace" do
     let(:subject) { Html2Text.new(nil).remove_leading_and_trailing_whitespace(input) }
 
